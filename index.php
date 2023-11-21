@@ -1,16 +1,27 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS'){
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Methods: POST,PUT, DELETE, OPTIONS");
-    header("Access-Control-Allow-Headers: *");
-    header("HTTP/1.1 200 OK");
+// Enable CORS
+header('Access-Control-Allow-Origin: http://127.0.0.1:5173');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Check for preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type');
+    header('Access-Control-Max-Age: 86400'); // 1 day
+    header("Content-Type: application/json");
+    header('Access-Control-Allow-Headers: Api-Key');
+    http_response_code(204);
     exit();
 }
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header("Content-Type: application/json");
 
+$expectedToken = 'Help';
+$providedToken = $_SERVER['HTTP_API_KEY'] ?? '';
+
+if ($providedToken !== $expectedToken) {
+    http_response_code(401);
+    exit('Unauthorized');
+}
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 $requestURI = $_SERVER['REQUEST_URI'];
@@ -21,7 +32,6 @@ $endpoints = [
         'POST' => 'login_user',
     ],
     '/api/resource' => [
-        'GET' => 'get_resource',
         'POST' => 'create_user',
     ],
     '/api/campaign/{id}' => [
@@ -29,14 +39,12 @@ $endpoints = [
         'PUT' => 'update_campaign',
         'DELETE' => 'delete_campaign'
     ],
-    '/api/domainlog' => [
-        'POST' => 'create_log'
-    ],
     '/api/domainlog/{id}' => [
         'GET' => 'domainlog'
     ],
     '/api/campaign' => [
         'POST' => 'create_campaign',
+        'GET' => 'get_resource',
     ],
     '/api/user-campaign/{id}' => [
         'GET' => 'campaigns_by_client_id'
