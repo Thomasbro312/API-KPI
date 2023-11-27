@@ -40,7 +40,10 @@ $endpoints = [
         'DELETE' => 'delete_campaign'
     ],
     '/api/domainlog/{id}' => [
-        'GET' => 'domainlog'
+        'GET' => 'domainlog',
+    ],
+    '/api/domainlog' => [
+        'POST' => 'create_log'
     ],
     '/api/campaign' => [
         'POST' => 'create_campaign',
